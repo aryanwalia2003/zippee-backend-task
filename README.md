@@ -10,6 +10,22 @@ A robust, RESTful API for managing tasks with Role-Based Access Control (RBAC), 
 *   **Containerization**: Docker & Docker Compose
 *   **Documentation**: Swagger/OpenAPI (via `drf-yasg`)
 
+## Key Features 🚀
+
+-   **Modular Architecture**: Split into `core`, `authentication`, and `tasks` apps for scalability.
+-   **Security**:
+    -   JWT Authentication with **Role-Based Access Control (RBAC)**.
+    -   Secure credential management via `.env`.
+    -   Safe from SQL Injection (parameterized queries) and XSS (Django defaults).
+-   **Performance**:
+    -   **Zero-DB Auth**: Validates tokens purely via crypto signature & JWT payload (User ID + Role), avoiding DB hits on every request.
+    -   **Connection Pooling**: Persistent DB connections enabled for high throughput.
+    -   **Cursor Pagination**: Efficient pagination for large datasets.
+-   **Developer Experience**:
+    -   Dockerized setup.
+    -   Swagger UI with "Try it out" feature.
+    -   Comprehensive Test Suite (11 Tests).
+
 ---
 
 ## Setup & Installation
@@ -151,7 +167,28 @@ Interactive API documentation is available via Swagger UI.
 
 The codebase follows the Single Responsibility Principle (SRP) and is split into:
 
-*   **`core/`**: Shared utilities (DB wrapper, API response helpers, Decorators).
-*   **`authentication/`**: User models, Auth services (Register/Login), logic.
-*   **`tasks/`**: Task business logic, specific Views, and Management commands.
 *   **`taskmanager/`**: Project settings and main URL routing.
+
+---
+
+## Troubleshooting
+
+### Q: Login fails with "Internal Server Error"?
+**A**: Ensure your PostgreSQL container is running (`docker compose ps`) and your `.env` credentials match.
+
+### Q: Swagger "Authorize" button doesn't work?
+**A**: We support **Bearer Token**.
+1. Login via `POST /auth/login`.
+2. Copy the `token` from the response.
+3. Click "Authorize" at the top of Swagger.
+4. Paste the token. (No need to type "Bearer ", just the token).
+
+### Q: "Relation does not exist" error?
+**A**: You might need to run migrations inside the container:
+```bash
+docker compose exec web python manage.py migrate
+```
+
+## License
+MIT License. Free to use!
+
