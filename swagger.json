@@ -1,0 +1,393 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Task Manager API",
+    "description": "API documentation for Task Manager",
+    "version": "v1",
+    "contact": {
+      "email": "contact@snippets.local"
+    },
+    "license": {
+      "name": "BSD License"
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Enter your token as: Bearer <your-token>"
+    }
+  },
+  "basePath": "/",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+
+    "/auth/register": {
+      "post": {
+        "operationId": "register",
+        "description": "Register a new user with Username, Email, and Password.",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "email",
+                "password"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 150
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          },
+          "400": {
+            "description": "Validation Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "422": {
+             "description": "Validation/Type Error",
+             "schema": {
+                "$ref": "#/definitions/ErrorResponse"
+             }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "description": "Login a user using Username OR Email.",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "password"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "description": "Username or Email address"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "operationId": "listTasks",
+        "description": "List all tasks for the logged in user with cursor pagination.",
+        "security": [
+          { "Bearer": [] }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Number of tasks to return (default 10)",
+             "default": 10
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "type": "string",
+            "description": "Cursor for pagination"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "type": "string",
+            "enum": ["next", "prev"],
+            "description": "Pagination direction (default: next)",
+            "default": "next"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "boolean",
+            "description": "Filter by completion status (true/false)"
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "enum": ["asc", "desc"],
+            "description": "Sort order by Creation Date (default: desc)",
+            "default": "desc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tasks",
+            "schema": {
+              "$ref": "#/definitions/TaskListResponse"
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      },
+      "post": {
+        "operationId": "createTask",
+        "description": "Create a new task.",
+        "security": [
+          { "Bearer": [] }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TaskCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Task created",
+            "schema": {
+              "$ref": "#/definitions/TaskDetailResponse"
+            }
+          },
+          "400": { "description": "Validation Error" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "integer"
+        }
+      ],
+      "get": {
+        "operationId": "getTask",
+        "description": "Get a specific task.",
+        "security": [
+          { "Bearer": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task details",
+            "schema": {
+              "$ref": "#/definitions/TaskDetailResponse"
+            }
+          },
+          "404": { "description": "Not Found" }
+        }
+      },
+      "delete": {
+        "operationId": "deleteTask",
+        "description": "Delete a task.",
+        "security": [
+          { "Bearer": [] }
+        ],
+        "responses": {
+          "204": { "description": "Task deleted" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/tasks/update": {
+      "post": {
+        "operationId": "updateTask",
+        "description": "Update task title/description.",
+        "security": [
+          { "Bearer": [] }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TaskUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task updated",
+            "schema": {
+              "$ref": "#/definitions/TaskDetailResponse"
+            }
+          },
+          "400": { "description": "Validation Error" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    },
+    "/tasks/complete": {
+      "post": {
+        "operationId": "completeTask",
+        "description": "Complete a task.",
+        "security": [
+          { "Bearer": [] }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TaskComplete"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task status updated",
+            "schema": {
+              "$ref": "#/definitions/TaskDetailResponse"
+            }
+          },
+          "400": { "description": "Validation Error" },
+          "404": { "description": "Not Found" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AuthResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer" },
+            "username": { "type": "string" },
+            "email": { "type": "string" }
+          }
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "user_id": { "type": "integer" }
+      }
+    },
+    "TaskCreate": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string", "maxLength": 255 },
+        "description": { "type": "string" }
+      }
+    },
+    "TaskUpdate": {
+      "type": "object",
+      "required": ["task_id"],
+      "properties": {
+        "task_id": { "type": "integer" },
+        "title": { "type": "string", "maxLength": 255 },
+        "description": { "type": "string" }
+      }
+    },
+    "TaskComplete": {
+      "type": "object",
+      "required": ["task_id", "completed"],
+      "properties": {
+        "task_id": { "type": "integer" },
+        "completed": { "type": "boolean" }
+      }
+    },
+    "TaskListResponse": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Task" }
+        },
+        "next_cursor": { "type": "string" },
+        "prev_cursor": { "type": "string" }
+      }
+    },
+    "TaskDetailResponse": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string" },
+        "task": { "$ref": "#/definitions/Task" }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "success": { "type": "boolean", "default": false },
+        "message": { "type": "string" },
+        "data": { "type": "object", "description": "Optional error details" },
+        "status": { "type": "integer" }
+      }
+    }
+  }
+}

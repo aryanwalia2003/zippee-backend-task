@@ -1,0 +1,10 @@
+Django
+djangorestframework
+psycopg2-binary
+python-dotenv
+PyJWT
+pydantic
+drf-yasg
+email-validator
+django-cors-headers
+requests
