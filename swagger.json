@@ -30,101 +30,16 @@
 
     "/auth/register": {
       "post": {
-        "operationId": "register",
-        "description": "Register a new user with Username, Email, and Password.",
-        "parameters": [
-          {
-            "name": "data",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "username",
-                "email",
-                "password"
-              ],
-              "properties": {
-                "username": {
-                  "type": "string",
-                  "minLength": 3,
-                  "maxLength": 150
-                },
-                "email": {
-                  "type": "string",
-                  "format": "email"
-                },
-                "password": {
-                  "type": "string",
-                  "minLength": 6
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "User registered successfully",
-            "schema": {
-              "$ref": "#/definitions/AuthResponse"
-            }
-          },
-          "400": {
-            "description": "Validation Error",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          },
-          "422": {
-             "description": "Validation/Type Error",
-             "schema": {
-                "$ref": "#/definitions/ErrorResponse"
-             }
-          }
-        }
+        "security": [], 
+        "summary": "Public: Register User",
+        "parameters": [{ "name": "body", "in": "body", "schema": { "$ref": "#/definitions/Register" } }]
       }
     },
     "/auth/login": {
       "post": {
-        "operationId": "login",
-        "description": "Login a user using Username OR Email.",
-        "parameters": [
-          {
-            "name": "data",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "username",
-                "password"
-              ],
-              "properties": {
-                "username": {
-                  "type": "string",
-                  "description": "Username or Email address"
-                },
-                "password": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "schema": {
-              "$ref": "#/definitions/AuthResponse"
-            }
-          },
-          "401": {
-            "description": "Invalid credentials",
-            "schema": {
-              "$ref": "#/definitions/ErrorResponse"
-            }
-          }
-        }
+        "security": [],
+        "summary": "Public: Login",
+        "parameters": [{ "name": "body", "in": "body", "schema": { "$ref": "#/definitions/Login" } }]
       }
     },
     "/tasks": {

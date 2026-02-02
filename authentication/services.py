@@ -38,5 +38,5 @@ class AuthService:
         if not user or not User.check_password(password, user['password']):
             raise UnauthorizedError('Invalid credentials')
             
-        token = generate_token(user['id'])
+        token = generate_token(user['id'], user['role'])
         return user, token

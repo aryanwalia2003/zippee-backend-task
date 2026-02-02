@@ -49,10 +49,22 @@ This comes with a pre-configured PostgreSQL database and Django backend.
     pip install -r requirements.txt
     ```
 
-3.  **Database Config**:
-    Ensure PostgreSQL is running. Update `taskmanager/settings.py` `DATABASES` config if needed (defaults to Docker values: user `postgres`, pass `postgrespassword`, port `5432`).
+3.  **Environment Setup**:
+    Create a `.env` file in the root directory (see `.env.example` or use defaults below):
+    ```ini
+    SECRET_KEY='your-secret-key'
+    DEBUG=True
+    DB_NAME=taskmanager
+    DB_USER=postgres
+    DB_PASSWORD=postgrespassword
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    ```
 
-4.  **Run Migrations**:
+4.  **Database Config**:
+    Ensure PostgreSQL is running. Update `.env` with your credentials.
+
+5.  **Run Migrations**:
     ```bash
     python manage.py migrate
     ```

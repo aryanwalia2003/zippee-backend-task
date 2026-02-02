@@ -18,7 +18,8 @@ from core.api_utils import ApiResponse, ApiError
             'password': openapi.Schema(type=openapi.TYPE_STRING),
         },
     ),
-    responses={201: 'User registered successfully'}
+    responses={201: 'User registered successfully'},
+    security=[]
 )
 @api_view(['POST'])
 @csrf_exempt
@@ -48,7 +49,8 @@ def register(request):
             'password': openapi.Schema(type=openapi.TYPE_STRING),
         },
     ),
-    responses={200: 'Login successful'}
+    responses={200: 'Login successful'},
+    security=[]
 )
 @api_view(['POST'])
 @csrf_exempt

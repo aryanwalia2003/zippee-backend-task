@@ -1,11 +1,35 @@
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .schemas import TaskCreateSchema, TaskUpdateSchema, TaskCompleteSchema
 from authentication.utils import login_required
 from core.decorators import validate_schema
 from core.api_utils import ApiResponse
 from .services import TaskService
 
+@swagger_auto_schema(
+    method='get',
+    manual_parameters=[
+        openapi.Parameter('limit', openapi.IN_QUERY, description="Number of items per page", type=openapi.TYPE_INTEGER),
+        openapi.Parameter('cursor', openapi.IN_QUERY, description="Pagination cursor", type=openapi.TYPE_STRING),
+        openapi.Parameter('direction', openapi.IN_QUERY, description="Page direction (next/prev)", type=openapi.TYPE_STRING),
+        openapi.Parameter('status', openapi.IN_QUERY, description="Filter by status (true/false)", type=openapi.TYPE_STRING),
+        openapi.Parameter('sort_order', openapi.IN_QUERY, description="Sort order (asc/desc)", type=openapi.TYPE_STRING),
+    ]
+)
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['title'],
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING),
+            'description': openapi.Schema(type=openapi.TYPE_STRING),
+        },
+    ),
+    responses={201: 'Task created'}
+)
 @api_view(['GET', 'POST'])
 @csrf_exempt
 @login_required
@@ -51,6 +75,19 @@ def task_detail(request, task_id):
         TaskService.delete_task(request.user_id, task_id)
         return ApiResponse({'message': 'Task deleted'}, status=204)
 
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['task_id'],
+        properties={
+            'task_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'title': openapi.Schema(type=openapi.TYPE_STRING),
+            'description': openapi.Schema(type=openapi.TYPE_STRING),
+        },
+    ),
+    responses={200: 'Task updated'}
+)
 @api_view(['POST'])
 @csrf_exempt
 @login_required
@@ -68,6 +105,18 @@ def update_task(request):
     )
     return ApiResponse({'message': 'Task updated', 'task': updated_task})
 
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['task_id', 'completed'],
+        properties={
+            'task_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'completed': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+        },
+    ),
+    responses={200: 'Task status updated'}
+)
 @api_view(['POST'])
 @csrf_exempt
 @login_required
